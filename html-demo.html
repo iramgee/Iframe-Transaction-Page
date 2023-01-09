@@ -23,19 +23,35 @@
 			let iframe = document.getElementById('transactionIframe');
 			let url = "https://sandbox.payfabric.com/Payment/Web/Transaction/Process";
 			let token = "";
-			const key = "23010802395154";
-			
-			function generateToken(key) {
-				let myHeaders = new Headers();
+			let key = "";
+			let myHeaders = new Headers();
 				myHeaders.append('Content-Type', 'application/json; charset=utf-8');
 				myHeaders.append("Access-Control-Allow-Origin","*");
 				myHeaders.append('authorization', '2:86c76aa9-b700-460c-a69f-c0b194f0279b|TSEvaluation@001');
+			
+			function generateKey() {
 				let xhr = new XMLHttpRequest();
-				xhr.addEventListener("readystatechange", function() {
-				  if(this.readyState === 4) {
-					// console.log(this.responseText);
-				  }
+				let params = {
+					"Amount": "29.99",
+					"Currency": "USD",
+					"SetupId": "EVO US_CC",
+					"Type": "Sale"
+				};
+				
+				xhr.open("POST", "https://sandbox.payfabric.com/payment/api/transaction/create", true);
+				xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+				xhr.setRequestHeader("authorization", "2:86c76aa9-b700-460c-a69f-c0b194f0279b|TSEvaluation@001");
+				xhr.send(JSON.stringify(params));
+				xhr.addEventListener('progress', function() {
+					// key = xhr.response;
+					key = xhr.response.split('"')[3];
+					generateToken(key)
+					// iframe.src = url + '?key=' + key + '&token=' + token.split('"')[3];
 				});
+			}
+			
+			function generateToken(key) {
+				let xhr = new XMLHttpRequest();
 				
 				xhr.open("GET", "https://sandbox.payfabric.com/payment/api/token/create", true);
 				xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
@@ -47,7 +63,8 @@
 				});	
 			}
 			
-			generateToken(key);
+			
+			generateKey();
 			
 			
 			
